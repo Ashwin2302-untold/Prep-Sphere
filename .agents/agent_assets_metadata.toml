@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "oHY1LupubdNpkkjCx6XXK"
+uri = "file://artifacts/prepsphere/src/assets/images/hero.png"
+type = "image"
+title = "Student studying in modern library"
+
+[[generated]]
+id = "ui782bFXpfbn-l_lWO95f"
+uri = "file://artifacts/prepsphere/src/assets/images/mock-exams.png"
+type = "image"
+title = "Mock exam on tablet"
+
+[[generated]]
+id = "Jd4zyhthugGvmS_F8u9Mx"
+uri = "file://artifacts/prepsphere/src/assets/images/analytics.png"
+type = "image"
+title = "Study analytics dashboard"
+
+[[generated]]
+id = "CR6_u55hEApJKeifl2nKo"
+uri = "file://artifacts/prepsphere/src/assets/images/study-plan.png"
+type = "image"
+title = "Organized study desk"
