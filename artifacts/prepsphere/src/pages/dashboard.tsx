@@ -9,6 +9,7 @@ import SubjectTracker from "@/components/SubjectTracker";
 import MockTestTracker from "@/components/MockTestTracker";
 import StudyHoursTracker from "@/components/StudyHoursTracker";
 import TodayMission from "@/components/TodayMission";
+import FirestoreStatusBanner from "@/components/FirestoreStatusBanner";
 
 const EXAMS = [
   {
@@ -47,7 +48,7 @@ const SUBJECTS = [
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const { data, loading, updateChapterStatus, addMockTest, logStudyHours, toggleMission, addMission, getStreak } = useDashboardData();
+  const { data, loading, firestoreStatus, retryFirestore, updateChapterStatus, addMockTest, logStudyHours, toggleMission, addMission, getStreak } = useDashboardData();
 
   const handleLogout = async () => {
     await logout();
@@ -106,6 +107,9 @@ export default function Dashboard() {
             </button>
           </div>
         </header>
+
+        {/* Firestore status banner */}
+        <FirestoreStatusBanner status={firestoreStatus} onRetry={retryFirestore} />
 
         {/* Greeting */}
         <motion.div

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { doc, getDoc, setDoc, enableNetwork, disableNetwork } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -39,6 +39,8 @@ export interface DashboardData {
   todayMissions: { id: string; text: string; done: boolean }[];
 }
 
+export type FirestoreStatus = "connecting" | "ok" | "offline" | "not_found" | "error";
+
 const defaultPhysicsChapters: Chapter[] = [
   "Units & Measurements", "Kinematics", "Laws of Motion", "Work, Energy & Power",
   "Rotational Motion", "Gravitation", "Properties of Matter", "Thermodynamics",
@@ -72,7 +74,7 @@ const defaultBiologyChapters: Chapter[] = [
   "Evolution", "Human Health", "Biotechnology", "Ecosystems", "Biodiversity",
 ].map(name => ({ name, status: "not_started" }));
 
-const defaultData: DashboardData = {
+const DEFAULT_DATA: DashboardData = {
   physics: { chapters: defaultPhysicsChapters },
   chemistry: { chapters: defaultChemistryChapters },
   mathematics: { chapters: defaultMathChapters },
@@ -89,27 +91,122 @@ const defaultData: DashboardData = {
   ],
 };
 
+function getLocalKey(uid: string) {
+  return `prepsphere_data_${uid}`;
+}
+
+function loadLocal(uid: string): DashboardData {
+  try {
+    const raw = localStorage.getItem(getLocalKey(uid));
+    if (raw) return { ...DEFAULT_DATA, ...JSON.parse(raw) };
+  } catch {}
+  return { ...DEFAULT_DATA };
+}
+
+function saveLocal(uid: string, data: DashboardData) {
+  try {
+    localStorage.setItem(getLocalKey(uid), JSON.stringify(data));
+  } catch {}
+}
+
+function isNotFoundError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return msg.toLowerCase().includes("not found") || msg.toLowerCase().includes("offline");
+}
+
 export function useDashboardData() {
   const { user } = useAuth();
-  const [data, setData] = useState<DashboardData>(defaultData);
+  const [data, setData] = useState<DashboardData>(DEFAULT_DATA);
   const [loading, setLoading] = useState(true);
+  const [firestoreStatus, setFirestoreStatus] = useState<FirestoreStatus>("connecting");
+  const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const firestoreAvailable = useRef(false);
+
+  const loadFromFirestore = useCallback(async (uid: string) => {
+    try {
+      const ref = doc(db, "users", uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        const remote = { ...DEFAULT_DATA, ...(snap.data() as DashboardData) };
+        setData(remote);
+        saveLocal(uid, remote);
+      } else {
+        // Document doesn't exist yet — create it from local data
+        const local = loadLocal(uid);
+        await setDoc(ref, local);
+        setData(local);
+      }
+
+      firestoreAvailable.current = true;
+      setFirestoreStatus("ok");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[PrepSphere] Firestore load error:", msg);
+
+      if (msg.toLowerCase().includes("not found")) {
+        setFirestoreStatus("not_found");
+      } else if (msg.toLowerCase().includes("offline") || msg.toLowerCase().includes("unavailable")) {
+        setFirestoreStatus("offline");
+      } else {
+        setFirestoreStatus("error");
+      }
+
+      // Fall back to localStorage — app still works
+      const local = loadLocal(uid);
+      setData(local);
+      firestoreAvailable.current = false;
+
+      // Retry after 8 seconds
+      if (retryRef.current) clearTimeout(retryRef.current);
+      retryRef.current = setTimeout(() => {
+        if (uid) loadFromFirestore(uid);
+      }, 8000);
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) return;
-    const ref = doc(db, "users", user.uid);
-    getDoc(ref).then((snap) => {
-      if (snap.exists()) {
-        setData({ ...defaultData, ...snap.data() as DashboardData });
-      }
-      setLoading(false);
-    });
-  }, [user]);
+    setLoading(true);
+
+    // Immediately load from localStorage so the UI shows instantly
+    const local = loadLocal(user.uid);
+    setData(local);
+
+    // Then try Firestore in background
+    loadFromFirestore(user.uid).finally(() => setLoading(false));
+
+    return () => {
+      if (retryRef.current) clearTimeout(retryRef.current);
+    };
+  }, [user, loadFromFirestore]);
 
   const save = useCallback(async (updated: DashboardData) => {
     if (!user) return;
     setData(updated);
-    await setDoc(doc(db, "users", user.uid), updated);
+    saveLocal(user.uid, updated);
+
+    if (!firestoreAvailable.current) return;
+
+    try {
+      await setDoc(doc(db, "users", user.uid), updated);
+    } catch (err) {
+      console.error("[PrepSphere] Firestore save error:", err);
+      if (isNotFoundError(err)) {
+        setFirestoreStatus("offline");
+        firestoreAvailable.current = false;
+      }
+    }
   }, [user]);
+
+  const retryFirestore = useCallback(async () => {
+    if (!user) return;
+    setFirestoreStatus("connecting");
+    try {
+      await enableNetwork(db);
+    } catch {}
+    await loadFromFirestore(user.uid);
+  }, [user, loadFromFirestore]);
 
   const updateChapterStatus = useCallback(async (
     subject: keyof Pick<DashboardData, "physics" | "chemistry" | "mathematics" | "biology">,
@@ -185,6 +282,8 @@ export function useDashboardData() {
   return {
     data,
     loading,
+    firestoreStatus,
+    retryFirestore,
     updateChapterStatus,
     addMockTest,
     logStudyHours,
