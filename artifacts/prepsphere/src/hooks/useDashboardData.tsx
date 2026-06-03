@@ -37,6 +37,8 @@ export interface DashboardData {
   streakStartDate: string;
   lastStudyDate: string;
   todayMissions: { id: string; text: string; done: boolean }[];
+  chapterTimestamps: Record<string, string>; // "subject_index" -> ISO date entered in_progress
+  snoozedChapters: Record<string, string>;   // "subject_index" -> ISO date snoozed until
 }
 
 export type FirestoreStatus = "connecting" | "ok" | "offline" | "not_found" | "error";
@@ -89,6 +91,8 @@ const DEFAULT_DATA: DashboardData = {
     { id: "3", text: "Complete 1 Mock Test section", done: false },
     { id: "4", text: "Review yesterday's mistakes", done: false },
   ],
+  chapterTimestamps: {},
+  snoozedChapters: {},
 };
 
 function getLocalKey(uid: string) {
@@ -213,7 +217,23 @@ export function useDashboardData() {
     chapterIndex: number,
     status: ChapterStatus
   ) => {
-    const updated = { ...data };
+    const key = `${subject}_${chapterIndex}`;
+    const now = new Date().toISOString();
+    const timestamps = { ...(data.chapterTimestamps ?? {}) };
+    const snoozed = { ...(data.snoozedChapters ?? {}) };
+
+    if (status === "in_progress" && !timestamps[key]) {
+      timestamps[key] = now;
+    } else if (status !== "in_progress") {
+      delete timestamps[key];
+      delete snoozed[key];
+    }
+
+    const updated = {
+      ...data,
+      chapterTimestamps: timestamps,
+      snoozedChapters: snoozed,
+    };
     updated[subject] = {
       ...updated[subject],
       chapters: updated[subject].chapters.map((ch, i) =>
@@ -221,6 +241,18 @@ export function useDashboardData() {
       ),
     };
     await save(updated);
+  }, [data, save]);
+
+  const snoozeChapter = useCallback(async (
+    subject: keyof Pick<DashboardData, "physics" | "chemistry" | "mathematics" | "biology">,
+    chapterIndex: number,
+    days = 7
+  ) => {
+    const key = `${subject}_${chapterIndex}`;
+    const until = new Date();
+    until.setDate(until.getDate() + days);
+    const snoozed = { ...(data.snoozedChapters ?? {}), [key]: until.toISOString() };
+    await save({ ...data, snoozedChapters: snoozed });
   }, [data, save]);
 
   const addMockTest = useCallback(async (test: Omit<MockTest, "id">) => {
@@ -285,6 +317,7 @@ export function useDashboardData() {
     firestoreStatus,
     retryFirestore,
     updateChapterStatus,
+    snoozeChapter,
     addMockTest,
     logStudyHours,
     toggleMission,

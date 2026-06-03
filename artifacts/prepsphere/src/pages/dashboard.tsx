@@ -10,6 +10,7 @@ import MockTestTracker from "@/components/MockTestTracker";
 import StudyHoursTracker from "@/components/StudyHoursTracker";
 import TodayMission from "@/components/TodayMission";
 import FirestoreStatusBanner from "@/components/FirestoreStatusBanner";
+import WeakTopicsPanel from "@/components/WeakTopicsPanel";
 
 const EXAMS = [
   {
@@ -48,7 +49,7 @@ const SUBJECTS = [
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const { data, loading, firestoreStatus, retryFirestore, updateChapterStatus, addMockTest, logStudyHours, toggleMission, addMission, getStreak } = useDashboardData();
+  const { data, loading, firestoreStatus, retryFirestore, updateChapterStatus, snoozeChapter, addMockTest, logStudyHours, toggleMission, addMission, getStreak } = useDashboardData();
 
   const handleLogout = async () => {
     await logout();
@@ -174,6 +175,13 @@ export default function Dashboard() {
             />
           </div>
         </div>
+
+        {/* Weak Topics */}
+        <WeakTopicsPanel
+          data={data}
+          onMarkStatus={updateChapterStatus}
+          onSnooze={snoozeChapter}
+        />
 
         {/* Subject Trackers */}
         <section>
