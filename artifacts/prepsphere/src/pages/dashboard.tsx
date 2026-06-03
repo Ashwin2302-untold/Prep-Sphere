@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { LogOut, User, Satellite } from "lucide-react";
+import { LogOut, User, Satellite, BarChart2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import StarField from "@/components/StarField";
@@ -92,7 +92,15 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              data-testid="button-analytics"
+              onClick={() => setLocation("/analytics")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 transition-all text-sm"
+            >
+              <BarChart2 className="w-3.5 h-3.5" />
+              Analytics
+            </button>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
               <User className="w-3.5 h-3.5 text-white/40" />
               <span className="text-sm text-white/60">{firstName}</span>
