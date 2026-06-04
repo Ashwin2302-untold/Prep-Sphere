@@ -14,6 +14,7 @@ import WeakTopicsPanel from "@/components/WeakTopicsPanel";
 import ReviewSchedulePanel from "@/components/ReviewSchedulePanel";
 import StatsBar from "@/components/StatsBar";
 import GoalTracker from "@/components/GoalTracker";
+import PomodoroTimer from "@/components/PomodoroTimer";
 import { generateReport } from "@/lib/reportGenerator";
 import type { ExamDef } from "@/lib/reviewScheduler";
 
@@ -62,7 +63,7 @@ export default function Dashboard() {
     data, loading, firestoreStatus, retryFirestore,
     updateChapterStatus, snoozeChapter, toggleReviewCheck, saveChapterNote,
     addGoal, toggleGoal, updateGoalProgress, removeGoal,
-    addMockTest, logStudyHours, toggleMission, addMission, getStreak,
+    addStudyHours, addMockTest, logStudyHours, toggleMission, addMission, getStreak,
   } = useDashboardData();
 
   const handleLogout = async () => {
@@ -178,30 +179,32 @@ export default function Dashboard() {
         {/* Quick Stats */}
         <StatsBar data={data} streak={getStreak()} />
 
-        {/* Today's Mission + Study Hours + Mock Tests */}
+        {/* Focus Timer + Today's Mission */}
+        <section className="mb-8">
+          <h3 className="text-xs font-bold text-white/55 uppercase tracking-widest mb-3">Focus Timer</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <PomodoroTimer onSessionComplete={addStudyHours} />
+            <TodayMission
+              missions={data.todayMissions}
+              onToggle={toggleMission}
+              onAdd={addMission}
+            />
+          </div>
+        </section>
+
+        {/* Study Hours + Mock Tests */}
         <section className="mb-8">
           <h3 className="text-xs font-bold text-white/55 uppercase tracking-widest mb-3">Daily Tracking</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            <div className="lg:col-span-1">
-              <TodayMission
-                missions={data.todayMissions}
-                onToggle={toggleMission}
-                onAdd={addMission}
-              />
-            </div>
-            <div className="lg:col-span-1">
-              <StudyHoursTracker
-                studyHours={data.studyHours}
-                streak={getStreak()}
-                onLog={logStudyHours}
-              />
-            </div>
-            <div className="lg:col-span-1">
-              <MockTestTracker
-                tests={data.mockTests}
-                onAdd={addMockTest}
-              />
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <StudyHoursTracker
+              studyHours={data.studyHours}
+              streak={getStreak()}
+              onLog={logStudyHours}
+            />
+            <MockTestTracker
+              tests={data.mockTests}
+              onAdd={addMockTest}
+            />
           </div>
         </section>
 

@@ -328,6 +328,22 @@ export function useDashboardData() {
     await save(updated);
   }, [data, save]);
 
+  const addStudyHours = useCallback(async (deltaHours: number) => {
+    const today = new Date().toISOString().split("T")[0];
+    const existing = data.studyHours.find(e => e.date === today);
+    const newHours = Math.round(((existing?.hours ?? 0) + deltaHours) * 100) / 100;
+    const studyHours = existing
+      ? data.studyHours.map(e => e.date === today ? { ...e, hours: newHours } : e)
+      : [...data.studyHours, { date: today, hours: newHours }];
+    const lastStudyDate = data.lastStudyDate;
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+    let streakStartDate = data.streakStartDate;
+    if (lastStudyDate !== today && lastStudyDate !== yesterdayStr) streakStartDate = today;
+    await save({ ...data, studyHours, streakStartDate, lastStudyDate: today });
+  }, [data, save]);
+
   const logStudyHours = useCallback(async (hours: number) => {
     const today = new Date().toISOString().split("T")[0];
     const existing = data.studyHours.find(e => e.date === today);
@@ -389,6 +405,7 @@ export function useDashboardData() {
     toggleGoal,
     updateGoalProgress,
     removeGoal,
+    addStudyHours,
     addMockTest,
     logStudyHours,
     toggleMission,
