@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { LogOut, User, Satellite, BarChart2 } from "lucide-react";
+import { LogOut, User, Satellite, BarChart2, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import StarField from "@/components/StarField";
@@ -13,6 +13,7 @@ import FirestoreStatusBanner from "@/components/FirestoreStatusBanner";
 import WeakTopicsPanel from "@/components/WeakTopicsPanel";
 import ReviewSchedulePanel from "@/components/ReviewSchedulePanel";
 import StatsBar from "@/components/StatsBar";
+import { generateReport } from "@/lib/reportGenerator";
 import type { ExamDef } from "@/lib/reviewScheduler";
 
 const EXAMS: Array<ExamDef & { color: string; icon: string }> = [
@@ -108,6 +109,14 @@ export default function Dashboard() {
             >
               <BarChart2 className="w-3.5 h-3.5" />
               Analytics
+            </button>
+            <button
+              data-testid="button-export"
+              onClick={() => generateReport(data, EXAMS, user?.email ?? "Student")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all text-sm"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Export
             </button>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
               <User className="w-3.5 h-3.5 text-white/40" />
