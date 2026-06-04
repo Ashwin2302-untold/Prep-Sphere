@@ -12,6 +12,7 @@ import TodayMission from "@/components/TodayMission";
 import FirestoreStatusBanner from "@/components/FirestoreStatusBanner";
 import WeakTopicsPanel from "@/components/WeakTopicsPanel";
 import ReviewSchedulePanel from "@/components/ReviewSchedulePanel";
+import StatsBar from "@/components/StatsBar";
 import type { ExamDef } from "@/lib/reviewScheduler";
 
 const EXAMS: Array<ExamDef & { color: string; icon: string }> = [
@@ -157,6 +158,9 @@ export default function Dashboard() {
             ))}
           </div>
         </section>
+
+        {/* Quick Stats */}
+        <StatsBar data={data} streak={getStreak()} />
 
         {/* Today's Mission + Study Hours + Mock Tests */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
