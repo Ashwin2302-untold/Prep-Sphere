@@ -16,7 +16,7 @@ interface StatItem {
   color: string;
   bg: string;
   border: string;
-  bar?: number; // 0–100
+  bar?: number;
   barColor?: string;
 }
 
@@ -24,37 +24,25 @@ export default function StatsBar({ data, streak }: StatsBarProps) {
   const stats = useMemo((): StatItem[] => {
     const subjects = ["physics", "chemistry", "mathematics", "biology"] as const;
 
-    // Chapters
-    let totalChapters = 0;
-    let doneChapters = 0;
+    let totalChapters = 0, doneChapters = 0, inProgress = 0;
     subjects.forEach(sub => {
       data[sub].chapters.forEach(ch => {
         totalChapters++;
         if (ch.status === "completed" || ch.status === "revised") doneChapters++;
+        if (ch.status === "in_progress") inProgress++;
       });
     });
     const completionPct = totalChapters > 0 ? Math.round((doneChapters / totalChapters) * 100) : 0;
 
-    // Notes
     const notesCount = Object.keys(data.chapterNotes ?? {}).filter(k => data.chapterNotes[k]?.trim()).length;
 
-    // Mock tests
     const tests = data.mockTests ?? [];
     const avgScore = tests.length > 0
       ? Math.round(tests.reduce((s, t) => s + (t.score / t.total) * 100, 0) / tests.length)
       : null;
 
-    // Today's study hours
     const today = new Date().toISOString().split("T")[0];
     const todayHours = data.studyHours?.find(e => e.date === today)?.hours ?? 0;
-
-    // In-progress chapters
-    let inProgress = 0;
-    subjects.forEach(sub => {
-      data[sub].chapters.forEach(ch => {
-        if (ch.status === "in_progress") inProgress++;
-      });
-    });
 
     return [
       {
@@ -63,8 +51,8 @@ export default function StatsBar({ data, streak }: StatsBarProps) {
         value: `${doneChapters}/${totalChapters}`,
         sub: `${completionPct}% complete`,
         color: "text-emerald-300",
-        bg: "bg-emerald-500/10",
-        border: "border-emerald-500/20",
+        bg: "bg-emerald-500/12",
+        border: "border-emerald-500/25",
         bar: completionPct,
         barColor: "bg-emerald-400",
       },
@@ -72,10 +60,10 @@ export default function StatsBar({ data, streak }: StatsBarProps) {
         icon: <TrendingUp className="w-4 h-4" />,
         label: "In Progress",
         value: inProgress,
-        sub: inProgress === 0 ? "all clear!" : inProgress === 1 ? "chapter" : "chapters",
+        sub: inProgress === 0 ? "all clear!" : "chapters",
         color: "text-yellow-300",
-        bg: "bg-yellow-500/10",
-        border: "border-yellow-500/20",
+        bg: "bg-yellow-500/12",
+        border: "border-yellow-500/25",
         bar: totalChapters > 0 ? Math.round((inProgress / totalChapters) * 100) : 0,
         barColor: "bg-yellow-400",
       },
@@ -83,24 +71,22 @@ export default function StatsBar({ data, streak }: StatsBarProps) {
         icon: <NotebookPen className="w-4 h-4" />,
         label: "Notes Saved",
         value: notesCount,
-        sub: notesCount === 1 ? "chapter note" : "chapter notes",
+        sub: "chapter notes",
         color: "text-violet-300",
-        bg: "bg-violet-500/10",
-        border: "border-violet-500/20",
+        bg: "bg-violet-500/12",
+        border: "border-violet-500/25",
       },
       {
         icon: <FlaskConical className="w-4 h-4" />,
         label: "Mock Avg",
         value: avgScore !== null ? `${avgScore}%` : "—",
-        sub: tests.length > 0 ? `across ${tests.length} test${tests.length > 1 ? "s" : ""}` : "no tests yet",
+        sub: tests.length > 0 ? `${tests.length} test${tests.length > 1 ? "s" : ""}` : "no tests yet",
         color: "text-blue-300",
-        bg: "bg-blue-500/10",
-        border: "border-blue-500/20",
+        bg: "bg-blue-500/12",
+        border: "border-blue-500/25",
         bar: avgScore ?? undefined,
         barColor: avgScore !== null
-          ? avgScore >= 75 ? "bg-emerald-400"
-          : avgScore >= 50 ? "bg-yellow-400"
-          : "bg-red-400"
+          ? avgScore >= 75 ? "bg-emerald-400" : avgScore >= 50 ? "bg-yellow-400" : "bg-red-400"
           : undefined,
       },
       {
@@ -109,8 +95,8 @@ export default function StatsBar({ data, streak }: StatsBarProps) {
         value: streak,
         sub: streak === 1 ? "day" : "days",
         color: "text-orange-300",
-        bg: "bg-orange-500/10",
-        border: "border-orange-500/20",
+        bg: "bg-orange-500/12",
+        border: "border-orange-500/25",
       },
       {
         icon: <Target className="w-4 h-4" />,
@@ -118,8 +104,8 @@ export default function StatsBar({ data, streak }: StatsBarProps) {
         value: todayHours > 0 ? `${todayHours}h` : "—",
         sub: todayHours > 0 ? "studied today" : "log your hours",
         color: "text-pink-300",
-        bg: "bg-pink-500/10",
-        border: "border-pink-500/20",
+        bg: "bg-pink-500/12",
+        border: "border-pink-500/25",
         bar: Math.min(Math.round((todayHours / 10) * 100), 100),
         barColor: "bg-pink-400",
       },
@@ -134,22 +120,23 @@ export default function StatsBar({ data, streak }: StatsBarProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.05 }}
-          className={`rounded-2xl border ${stat.bg} ${stat.border} backdrop-blur-sm p-4 flex flex-col gap-2`}
+          className={`rounded-2xl border ${stat.bg} ${stat.border} backdrop-blur-md p-4 flex flex-col gap-2`}
+          style={{ background: "rgba(0,0,0,0.38)" }}
         >
           <div className={`flex items-center gap-1.5 ${stat.color}`}>
             {stat.icon}
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-white/30">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-white/55">
               {stat.label}
             </span>
           </div>
           <div>
-            <span className={`text-2xl font-bold ${stat.color} leading-none`}>{stat.value}</span>
+            <span className={`text-2xl font-bold ${stat.color} leading-none`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{stat.value}</span>
             {stat.sub && (
-              <p className="text-[11px] text-white/35 mt-0.5">{stat.sub}</p>
+              <p className="text-[11px] text-white/55 mt-0.5">{stat.sub}</p>
             )}
           </div>
           {stat.bar !== undefined && stat.barColor && (
-            <div className="h-1 bg-white/8 rounded-full overflow-hidden">
+            <div className="h-1 bg-white/10 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${stat.bar}%` }}

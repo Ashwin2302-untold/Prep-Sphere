@@ -230,6 +230,25 @@
 }
 
 @layer utilities {
+  /* ── Readability helpers ─────────────────────────── */
+  .heading-glow {
+    text-shadow: 0 0 24px rgba(139, 92, 246, 0.35), 0 2px 8px rgba(0,0,0,0.6);
+  }
+  .subheading-shadow {
+    text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+  }
+  .card-glass {
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.13);
+  }
+  .card-glass-subtle {
+    background: rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+  /* ─────────────────────────────────────────────────── */
+
   .custom-scroll::-webkit-scrollbar {
     width: 4px;
   }

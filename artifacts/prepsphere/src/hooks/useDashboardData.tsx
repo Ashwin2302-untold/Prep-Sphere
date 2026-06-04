@@ -22,6 +22,18 @@ export interface MockTest {
   total: number;
 }
 
+export interface Goal {
+  id: string;
+  text: string;
+  type: "custom" | "chapters" | "score" | "hours" | "tests";
+  target?: number;
+  current?: number;
+  unit?: string;
+  deadline?: string;
+  done: boolean;
+  createdAt: string;
+}
+
 export interface StudyHourEntry {
   date: string;
   hours: number;
@@ -41,6 +53,7 @@ export interface DashboardData {
   snoozedChapters: Record<string, string>;   // "subject_index" -> ISO date snoozed until
   reviewChecks: Record<string, string>;      // "subject_index" -> YYYY-MM-DD last checked off
   chapterNotes: Record<string, string>;      // "subject_index" -> note/formula text
+  goals: Goal[];
 }
 
 export type FirestoreStatus = "connecting" | "ok" | "offline" | "not_found" | "error";
@@ -97,6 +110,7 @@ const DEFAULT_DATA: DashboardData = {
   snoozedChapters: {},
   reviewChecks: {},
   chapterNotes: {},
+  goals: [],
 };
 
 function getLocalKey(uid: string) {
@@ -274,6 +288,23 @@ export function useDashboardData() {
     await save({ ...data, reviewChecks: checks });
   }, [data, save]);
 
+  const addGoal = useCallback(async (goal: Omit<Goal, "id" | "createdAt">) => {
+    const newGoal: Goal = { ...goal, id: Date.now().toString(), createdAt: new Date().toISOString() };
+    await save({ ...data, goals: [...(data.goals ?? []), newGoal] });
+  }, [data, save]);
+
+  const toggleGoal = useCallback(async (id: string) => {
+    await save({ ...data, goals: (data.goals ?? []).map(g => g.id === id ? { ...g, done: !g.done } : g) });
+  }, [data, save]);
+
+  const updateGoalProgress = useCallback(async (id: string, current: number) => {
+    await save({ ...data, goals: (data.goals ?? []).map(g => g.id === id ? { ...g, current } : g) });
+  }, [data, save]);
+
+  const removeGoal = useCallback(async (id: string) => {
+    await save({ ...data, goals: (data.goals ?? []).filter(g => g.id !== id) });
+  }, [data, save]);
+
   const saveChapterNote = useCallback(async (
     subject: keyof Pick<DashboardData, "physics" | "chemistry" | "mathematics" | "biology">,
     chapterIndex: number,
@@ -354,6 +385,10 @@ export function useDashboardData() {
     snoozeChapter,
     toggleReviewCheck,
     saveChapterNote,
+    addGoal,
+    toggleGoal,
+    updateGoalProgress,
+    removeGoal,
     addMockTest,
     logStudyHours,
     toggleMission,

@@ -27,19 +27,19 @@ export default function TodayMission({ missions, onToggle, onAdd }: TodayMission
   const pct = missions.length > 0 ? Math.round((done / missions.length) * 100) : 0;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
+    <div className="rounded-2xl card-glass p-5">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
           <Rocket className="w-5 h-5 text-violet-400" />
-          <h3 className="font-bold text-white">Today's Mission</h3>
+          <h3 className="font-bold text-white subheading-shadow">Today's Mission</h3>
         </div>
-        <span className="text-sm text-white/50">{done}/{missions.length}</span>
+        <span className="text-sm font-semibold text-white/70">{done}/{missions.length}</span>
       </div>
 
       <div className="mb-4">
-        <div className="flex justify-between text-xs text-white/40 mb-1">
+        <div className="flex justify-between text-xs text-white/55 mb-1">
           <span>Daily progress</span>
-          <span>{pct}%</span>
+          <span className="font-semibold text-white/70">{pct}%</span>
         </div>
         <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
           <motion.div
@@ -60,16 +60,16 @@ export default function TodayMission({ missions, onToggle, onAdd }: TodayMission
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
               onClick={() => onToggle(m.id)}
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors text-left group"
+              className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/8 hover:bg-white/12 transition-colors text-left group border border-white/8"
             >
               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                 m.done
                   ? "bg-violet-500 border-violet-500"
-                  : "border-white/20 group-hover:border-violet-400/50"
+                  : "border-white/30 group-hover:border-violet-400/60"
               }`}>
                 {m.done && <Check className="w-3 h-3 text-white" />}
               </div>
-              <span className={`text-sm transition-colors ${m.done ? "line-through text-white/30" : "text-white/80"}`}>
+              <span className={`text-sm transition-colors ${m.done ? "line-through text-white/35" : "text-white/90"}`}>
                 {m.text}
               </span>
             </motion.button>
@@ -85,12 +85,12 @@ export default function TodayMission({ missions, onToggle, onAdd }: TodayMission
           value={newMission}
           onChange={e => setNewMission(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleAdd()}
-          className="flex-1 px-3 py-2 bg-white/10 border border-white/10 text-white text-sm rounded-lg focus:outline-none focus:border-violet-400/50 placeholder:text-white/20"
+          className="flex-1 px-3 py-2 bg-white/10 border border-white/15 text-white text-sm rounded-lg focus:outline-none focus:border-violet-400/60 placeholder:text-white/30"
         />
         <button
           data-testid="button-add-mission"
           onClick={handleAdd}
-          className="px-3 py-2 rounded-lg bg-violet-500/20 text-violet-300 border border-violet-500/30 hover:bg-violet-500/30 transition-colors"
+          className="px-3 py-2 rounded-lg bg-violet-500/25 text-violet-200 border border-violet-500/40 hover:bg-violet-500/35 transition-colors"
         >
           <Plus className="w-4 h-4" />
         </button>

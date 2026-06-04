@@ -34,13 +34,13 @@ export default function CountdownCard({ title, targetDate, color, icon }: Countd
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative rounded-2xl p-4 border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden"
+      className="relative rounded-2xl overflow-hidden card-glass"
     >
-      <div className={`absolute inset-0 opacity-10 ${color}`} />
-      <div className="relative z-10">
+      <div className={`absolute inset-0 opacity-[0.08] ${color}`} />
+      <div className="relative z-10 p-4">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xl">{icon}</span>
-          <h3 className="text-sm font-semibold text-white/80">{title}</h3>
+          <h3 className="text-sm font-bold text-white subheading-shadow">{title}</h3>
         </div>
         <div className="grid grid-cols-4 gap-1">
           {[
@@ -50,10 +50,10 @@ export default function CountdownCard({ title, targetDate, color, icon }: Countd
             { label: "Sec", value: timeLeft.seconds },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
-              <div className={`text-2xl font-bold font-mono text-white tabular-nums`}>
+              <div className="text-2xl font-bold font-mono text-white tabular-nums" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.8)" }}>
                 {String(value).padStart(2, "0")}
               </div>
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">{label}</div>
+              <div className="text-[10px] text-white/55 uppercase tracking-wider mt-0.5">{label}</div>
             </div>
           ))}
         </div>

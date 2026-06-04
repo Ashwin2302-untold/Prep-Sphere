@@ -158,23 +158,23 @@ export default function Analytics() {
       <StarField />
 
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-1/3 w-[500px] h-[300px] rounded-full bg-indigo-800/10 blur-3xl" />
-        <div className="absolute bottom-1/3 left-0 w-[400px] h-[400px] rounded-full bg-purple-800/10 blur-3xl" />
+        <div className="absolute top-0 right-1/3 w-[500px] h-[300px] rounded-full bg-indigo-800/6 blur-3xl" />
+        <div className="absolute bottom-1/3 left-0 w-[400px] h-[400px] rounded-full bg-purple-800/6 blur-3xl" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 pb-16">
         {/* Header */}
-        <header className="flex items-center justify-between py-5 border-b border-white/5 mb-6">
+        <header className="flex items-center justify-between py-5 border-b border-white/10 mb-6">
           <div className="flex items-center gap-3">
             <button
               data-testid="button-back-dashboard"
               onClick={() => setLocation("/dashboard")}
-              className="flex items-center gap-2 text-white/50 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-white/65 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm">Dashboard</span>
+              <span className="text-sm font-medium">Dashboard</span>
             </button>
-            <span className="text-white/20">/</span>
+            <span className="text-white/35">/</span>
             <div className="flex items-center gap-2">
               <BarChart2 className="w-4 h-4 text-indigo-400" />
               <span className="text-white font-semibold">Performance Analytics</span>
@@ -193,8 +193,8 @@ export default function Analytics() {
             <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4">
               <BarChart2 className="w-7 h-7 text-indigo-400/60" />
             </div>
-            <h3 className="text-white/60 font-semibold text-lg mb-2">No mock tests logged yet</h3>
-            <p className="text-white/30 text-sm max-w-xs">
+            <h3 className="text-white/85 font-semibold text-lg mb-2">No mock tests logged yet</h3>
+            <p className="text-white/55 text-sm max-w-xs">
               Go to the dashboard and add mock test scores to see your performance analytics here.
             </p>
             <button
@@ -216,8 +216,8 @@ export default function Analytics() {
                   onClick={() => setExamFilter(f)}
                   className={`px-4 py-1.5 rounded-full text-sm border transition-all ${
                     examFilter === f
-                      ? "bg-indigo-500/30 text-indigo-200 border-indigo-500/50"
-                      : "bg-white/5 text-white/40 border-white/10 hover:border-white/20"
+                      ? "bg-indigo-500/30 text-indigo-100 border-indigo-500/50 font-semibold"
+                      : "bg-white/8 text-white/60 border-white/15 hover:border-white/30 hover:text-white/80"
                   }`}
                 >
                   {f}
@@ -238,23 +238,23 @@ export default function Analytics() {
                     value: `${stats.best}%`,
                     sub: stats.bestTest ? `${stats.bestTest.exam}` : "",
                     icon: <Trophy className="w-4 h-4 text-yellow-400" />,
-                    color: "border-yellow-500/20 bg-yellow-500/5",
-                    vcolor: "text-yellow-300",
+                    color: "border-yellow-500/25",
+                    vcolor: "text-yellow-200",
                   },
                   {
                     label: "Average",
                     value: `${stats.avg}%`,
                     sub: `across ${stats.total} tests`,
                     icon: <Target className="w-4 h-4 text-blue-400" />,
-                    color: "border-blue-500/20 bg-blue-500/5",
-                    vcolor: "text-blue-300",
+                    color: "border-blue-500/25",
+                    vcolor: "text-blue-200",
                   },
                   {
                     label: "Trend",
                     value: trendSlope > 1 ? "Improving" : trendSlope < -1 ? "Declining" : "Stable",
                     sub: `${trendSlope > 0 ? "+" : ""}${trendSlope.toFixed(1)}% / test`,
                     icon: trendIcon(trendSlope),
-                    color: "border-white/10 bg-white/5",
+                    color: "border-white/15",
                     vcolor: trendColor(trendSlope),
                   },
                   {
@@ -262,17 +262,17 @@ export default function Analytics() {
                     value: `${stats.worst}%`,
                     sub: "room to improve",
                     icon: <Zap className="w-4 h-4 text-orange-400" />,
-                    color: "border-orange-500/20 bg-orange-500/5",
-                    vcolor: "text-orange-300",
+                    color: "border-orange-500/25",
+                    vcolor: "text-orange-200",
                   },
                 ].map(card => (
-                  <div key={card.label} className={`rounded-2xl border p-4 ${card.color}`}>
+                  <div key={card.label} className={`rounded-2xl border p-4 card-glass ${card.color}`}>
                     <div className="flex items-center gap-2 mb-2">
                       {card.icon}
-                      <span className="text-xs text-white/40">{card.label}</span>
+                      <span className="text-xs text-white/60 font-medium uppercase tracking-wide">{card.label}</span>
                     </div>
-                    <div className={`text-2xl font-bold ${card.vcolor}`}>{card.value}</div>
-                    <div className="text-xs text-white/30 mt-1">{card.sub}</div>
+                    <div className={`text-2xl font-bold ${card.vcolor}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{card.value}</div>
+                    <div className="text-xs text-white/50 mt-1">{card.sub}</div>
                   </div>
                 ))}
               </motion.div>
@@ -283,12 +283,12 @@ export default function Analytics() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 mb-5"
+              className="rounded-2xl card-glass p-5 mb-5"
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-bold text-white">Score Trend</h3>
-                  <p className="text-xs text-white/30 mt-0.5">Percentage score over time</p>
+                  <h3 className="font-bold text-white subheading-shadow">Score Trend</h3>
+                  <p className="text-xs text-white/55 mt-0.5">Percentage score over time</p>
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs">
                   {trendIcon(trendSlope)}
@@ -299,7 +299,7 @@ export default function Analytics() {
               </div>
 
               {trendData.length < 2 ? (
-                <p className="text-white/30 text-sm text-center py-8">Add at least 2 tests to see trend</p>
+                <p className="text-white/55 text-sm text-center py-8">Add at least 2 tests to see trend</p>
               ) : (
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={trendData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
@@ -350,13 +350,13 @@ export default function Analytics() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5"
+                className="rounded-2xl card-glass p-5"
               >
-                <h3 className="font-bold text-white mb-1">Average by Exam</h3>
-                <p className="text-xs text-white/30 mb-4">Mean score % per exam type</p>
+                <h3 className="font-bold text-white subheading-shadow mb-1">Average by Exam</h3>
+                <p className="text-xs text-white/55 mb-4">Mean score % per exam type</p>
 
                 {examAverages.length === 0 ? (
-                  <p className="text-white/30 text-sm text-center py-8">No data</p>
+                  <p className="text-white/55 text-sm text-center py-8">No data</p>
                 ) : (
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={examAverages} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
@@ -403,10 +403,10 @@ export default function Analytics() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5"
+                className="rounded-2xl card-glass p-5"
               >
-                <h3 className="font-bold text-white mb-1">Score Distribution</h3>
-                <p className="text-xs text-white/30 mb-4">How many tests fall in each range</p>
+                <h3 className="font-bold text-white subheading-shadow mb-1">Score Distribution</h3>
+                <p className="text-xs text-white/55 mb-4">How many tests fall in each range</p>
 
                 <div className="space-y-3">
                   {distribution.map(b => {
@@ -414,7 +414,7 @@ export default function Analytics() {
                     const w = b.count > 0 ? Math.max((b.count / max) * 100, 8) : 0;
                     return (
                       <div key={b.range} className="flex items-center gap-3">
-                        <span className="text-xs text-white/40 w-16 flex-shrink-0">{b.range}</span>
+                        <span className="text-xs text-white/60 w-16 flex-shrink-0">{b.range}</span>
                         <div className="flex-1 h-6 bg-white/5 rounded-md overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
@@ -439,12 +439,12 @@ export default function Analytics() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
-              className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5"
+              className="rounded-2xl card-glass p-5"
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="font-bold text-white">Subject Readiness</h3>
-                  <p className="text-xs text-white/30 mt-0.5">
+                  <h3 className="font-bold text-white subheading-shadow">Subject Readiness</h3>
+                  <p className="text-xs text-white/55 mt-0.5">
                     Based on completed + revised chapters (revised counts 1.2×)
                   </p>
                 </div>
@@ -504,7 +504,7 @@ export default function Analytics() {
                           className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
                         />
                       </div>
-                      <div className="flex gap-3 mt-1 text-xs text-white/30">
+                      <div className="flex gap-3 mt-1 text-xs text-white/50">
                         <span><span className="text-emerald-400">{s.completed}</span> completed</span>
                         <span><span className="text-purple-400">{s.revised}</span> revised</span>
                       </div>
