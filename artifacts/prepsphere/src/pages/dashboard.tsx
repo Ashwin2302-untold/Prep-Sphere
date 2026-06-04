@@ -55,7 +55,7 @@ const SUBJECTS = [
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const { data, loading, firestoreStatus, retryFirestore, updateChapterStatus, snoozeChapter, toggleReviewCheck, addMockTest, logStudyHours, toggleMission, addMission, getStreak } = useDashboardData();
+  const { data, loading, firestoreStatus, retryFirestore, updateChapterStatus, snoozeChapter, toggleReviewCheck, saveChapterNote, addMockTest, logStudyHours, toggleMission, addMission, getStreak } = useDashboardData();
 
   const handleLogout = async () => {
     await logout();
@@ -209,10 +209,13 @@ export default function Dashboard() {
               >
                 <SubjectTracker
                   subject={subj.label}
+                  subjectKey={subj.key}
                   icon={subj.icon}
                   color={subj.color}
                   chapters={data[subj.key].chapters}
+                  notes={data.chapterNotes ?? {}}
                   onStatusChange={(idx, status) => updateChapterStatus(subj.key, idx, status)}
+                  onSaveNote={(idx, note) => saveChapterNote(subj.key, idx, note)}
                 />
               </motion.div>
             ))}
