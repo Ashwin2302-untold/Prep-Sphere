@@ -39,6 +39,7 @@ export interface DashboardData {
   todayMissions: { id: string; text: string; done: boolean }[];
   chapterTimestamps: Record<string, string>; // "subject_index" -> ISO date entered in_progress
   snoozedChapters: Record<string, string>;   // "subject_index" -> ISO date snoozed until
+  reviewChecks: Record<string, string>;      // "subject_index" -> YYYY-MM-DD last checked off
 }
 
 export type FirestoreStatus = "connecting" | "ok" | "offline" | "not_found" | "error";
@@ -93,6 +94,7 @@ const DEFAULT_DATA: DashboardData = {
   ],
   chapterTimestamps: {},
   snoozedChapters: {},
+  reviewChecks: {},
 };
 
 function getLocalKey(uid: string) {
@@ -255,6 +257,21 @@ export function useDashboardData() {
     await save({ ...data, snoozedChapters: snoozed });
   }, [data, save]);
 
+  const toggleReviewCheck = useCallback(async (
+    subject: keyof Pick<DashboardData, "physics" | "chemistry" | "mathematics" | "biology">,
+    chapterIndex: number
+  ) => {
+    const key = `${subject}_${chapterIndex}`;
+    const today = new Date().toISOString().split("T")[0];
+    const checks = { ...(data.reviewChecks ?? {}) };
+    if (checks[key] === today) {
+      delete checks[key];
+    } else {
+      checks[key] = today;
+    }
+    await save({ ...data, reviewChecks: checks });
+  }, [data, save]);
+
   const addMockTest = useCallback(async (test: Omit<MockTest, "id">) => {
     const updated = {
       ...data,
@@ -318,6 +335,7 @@ export function useDashboardData() {
     retryFirestore,
     updateChapterStatus,
     snoozeChapter,
+    toggleReviewCheck,
     addMockTest,
     logStudyHours,
     toggleMission,

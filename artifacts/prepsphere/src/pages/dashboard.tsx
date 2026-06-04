@@ -11,29 +11,35 @@ import StudyHoursTracker from "@/components/StudyHoursTracker";
 import TodayMission from "@/components/TodayMission";
 import FirestoreStatusBanner from "@/components/FirestoreStatusBanner";
 import WeakTopicsPanel from "@/components/WeakTopicsPanel";
+import ReviewSchedulePanel from "@/components/ReviewSchedulePanel";
+import type { ExamDef } from "@/lib/reviewScheduler";
 
-const EXAMS = [
+const EXAMS: Array<ExamDef & { color: string; icon: string }> = [
   {
     title: "JEE Main 2027",
     targetDate: "2027-01-20",
+    subjects: ["physics", "chemistry", "mathematics"],
     color: "bg-gradient-to-br from-blue-600 to-cyan-600",
     icon: "⚡",
   },
   {
     title: "JEE Advanced 2027",
     targetDate: "2027-05-25",
+    subjects: ["physics", "chemistry", "mathematics"],
     color: "bg-gradient-to-br from-purple-600 to-indigo-600",
     icon: "🚀",
   },
   {
     title: "NEET 2027",
     targetDate: "2027-05-02",
+    subjects: ["physics", "chemistry", "biology"],
     color: "bg-gradient-to-br from-emerald-600 to-teal-600",
     icon: "🧬",
   },
   {
     title: "Boards 2027",
     targetDate: "2027-02-15",
+    subjects: ["physics", "chemistry", "mathematics"],
     color: "bg-gradient-to-br from-orange-500 to-amber-600",
     icon: "📚",
   },
@@ -49,7 +55,7 @@ const SUBJECTS = [
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const { data, loading, firestoreStatus, retryFirestore, updateChapterStatus, snoozeChapter, addMockTest, logStudyHours, toggleMission, addMission, getStreak } = useDashboardData();
+  const { data, loading, firestoreStatus, retryFirestore, updateChapterStatus, snoozeChapter, toggleReviewCheck, addMockTest, logStudyHours, toggleMission, addMission, getStreak } = useDashboardData();
 
   const handleLogout = async () => {
     await logout();
@@ -175,6 +181,13 @@ export default function Dashboard() {
             />
           </div>
         </div>
+
+        {/* Review Schedule */}
+        <ReviewSchedulePanel
+          data={data}
+          exams={EXAMS}
+          onToggleCheck={toggleReviewCheck}
+        />
 
         {/* Weak Topics */}
         <WeakTopicsPanel
